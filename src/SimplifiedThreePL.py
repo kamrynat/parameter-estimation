@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.optimize as opt
 from src.Experiment import Experiment
+from src.SignalDetection import SignalDetection
 
 class SimplifiedThreePL:
     def __init__(self, experiment: Experiment):
@@ -20,11 +21,14 @@ class SimplifiedThreePL:
         Returns a summary dictionary containing total trials, correct trials,
         incorrect trials, and number of conditions.
         """
+        total_correct = sum(sdt.n_correct_responses() for sdt in self.experiment.conditions)
+        total_incorrect = sum(sdt.n_incorrect_responses() for sdt in self.experiment.conditions)
+        
         return {
-            "n_total": sum(self.experiment.n_correct) + sum(self.experiment.n_incorrect),
-            "n_correct": sum(self.experiment.n_correct),
-            "n_incorrect": sum(self.experiment.n_incorrect),
-            "n_conditions": len(self.experiment.n_correct),
+            "n_total": total_correct + total_incorrect,
+            "n_correct": total_correct,
+            "n_incorrect": total_incorrect,
+            "n_conditions": len(self.experiment.conditions),
         }
     
     def predict(self, parameters):
@@ -38,15 +42,13 @@ class SimplifiedThreePL:
         return probabilities
     
     def negative_log_likelihood(self, parameters):
-        """
-        Computes the negative log-likelihood of the data given parameters.
-        """
         probabilities = self.predict(parameters)
-        log_likelihood = np.sum(
-            self.experiment.n_correct * np.log(probabilities)
-            + self.experiment.n_incorrect * np.log(1 - probabilities)
-        )
-        return -log_likelihood
+        log_likelihoods = np.array([
+            sdt.n_correct_responses() * np.log(probabilities) +
+            sdt.n_incorrect_responses() * np.log(1 - probabilities)
+            for sdt in self.experiment.conditions
+        ])
+        return -np.sum(log_likelihoods)  # Ensure a single scalar value
     
     def fit(self):
         """
@@ -76,4 +78,4 @@ class SimplifiedThreePL:
         if not self._is_fitted:
             raise ValueError("Model has not been fitted yet")
         return 1 / (1 + np.exp(-self._logit_base_rate))  # Convert logit_c to c
-    
+
