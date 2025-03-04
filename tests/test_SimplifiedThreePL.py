@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
-from src.SimplifiedThreePL import SimplifiedThreePL
-from src.Experiment import Experiment
+from SimplifiedThreePL import SimplifiedThreePL
+from Experiment import Experiment
 
 #Asked ChatGPT for help while generating code
 class TestSimplifiedThreePL(unittest.TestCase):
