@@ -32,12 +32,12 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def test_summary(self):
         summary = self.model.summary()
         total_correct = self.hits + self.correct_rejections
-	total_incorrect = self.misses + self.false_alarms
+        total_incorrect = self.misses + self.false_alarms
 
-	self.assertEqual(summary["n_total"], total_correct + total_incorrect)
-	self.assertEqual(summary["n_correct"], total_correct)
-	self.assertEqual(summary["n_incorrect"], total_incorrect)
-	self.assertEqual(summary["n_conditions"], 1)  # Only one condition is added
+        self.assertEqual(summary["n_total"], total_correct + total_incorrect)
+        self.assertEqual(summary["n_correct"], total_correct)
+        self.assertEqual(summary["n_incorrect"], total_incorrect)
+        self.assertEqual(summary["n_conditions"], 1)  # Only one condition is added
 
     
     def test_predict(self):

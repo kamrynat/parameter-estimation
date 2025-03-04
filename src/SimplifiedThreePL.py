@@ -42,13 +42,13 @@ class SimplifiedThreePL:
         return probabilities
     
     def negative_log_likelihood(self, parameters):
-    probabilities = self.predict(parameters)
-    log_likelihoods = np.array([
-        sdt.n_correct_responses() * np.log(probabilities) +
-        sdt.n_incorrect_responses() * np.log(1 - probabilities)
-        for sdt in self.experiment.conditions
-    ])
-    return -np.sum(log_likelihoods)  # Ensure a single scalar value
+        probabilities = self.predict(parameters)
+        log_likelihoods = np.array([
+            sdt.n_correct_responses() * np.log(probabilities) +
+            sdt.n_incorrect_responses() * np.log(1 - probabilities)
+            for sdt in self.experiment.conditions
+        ])
+        return -np.sum(log_likelihoods)  # Ensure a single scalar value
     
     def fit(self):
         """
