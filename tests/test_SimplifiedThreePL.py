@@ -1,15 +1,25 @@
 import unittest
 import numpy as np
-from SimplifiedThreePL import SimplifiedThreePL
-from Experiment import Experiment
+from src.SimplifiedThreePL import SimplifiedThreePL
+from src.Experiment import Experiment
+from src.SignalDetection import SignalDetection
 
-#Asked ChatGPT for help while generating code
 class TestSimplifiedThreePL(unittest.TestCase):
     def setUp(self):
-        # Mock Experiment Data
-        self.n_correct = np.array([30, 25, 20, 15, 10])
-        self.n_incorrect = np.array([10, 15, 20, 25, 30])
-        self.experiment = Experiment(self.n_correct, self.n_incorrect)
+        # Mock SignalDetection Data
+        self.hits = 30
+        self.misses = 10
+        self.false_alarms = 15
+        self.correct_rejections = 25
+
+        # Create SignalDetection object with correct parameters
+        self.signal_detection = SignalDetection(self.hits, self.misses, self.false_alarms, self.correct_rejections)
+
+        # Initialize Experiment and add SignalDetection object
+        self.experiment = Experiment()
+        self.experiment.add_condition(self.signal_detection)
+
+        # Initialize SimplifiedThreePL with the corrected Experiment object
         self.model = SimplifiedThreePL(self.experiment)
 
     def test_initialization(self):
@@ -21,15 +31,19 @@ class TestSimplifiedThreePL(unittest.TestCase):
     
     def test_summary(self):
         summary = self.model.summary()
-        self.assertEqual(summary["n_total"], sum(self.n_correct) + sum(self.n_incorrect))
-        self.assertEqual(summary["n_correct"], sum(self.n_correct))
-        self.assertEqual(summary["n_incorrect"], sum(self.n_incorrect))
-        self.assertEqual(summary["n_conditions"], len(self.n_correct))
+        total_correct = self.hits + self.correct_rejections
+	total_incorrect = self.misses + self.false_alarms
+
+	self.assertEqual(summary["n_total"], total_correct + total_incorrect)
+	self.assertEqual(summary["n_correct"], total_correct)
+	self.assertEqual(summary["n_incorrect"], total_incorrect)
+	self.assertEqual(summary["n_conditions"], 1)  # Only one condition is added
+
     
     def test_predict(self):
         parameters = [1.0, 0.0]  # Test parameters
         probabilities = self.model.predict(parameters)
-        self.assertEqual(len(probabilities), len(self.n_correct))
+        self.assertEqual(len(probabilities), 5)  # Since difficulties array has 5 elements
         self.assertTrue(np.all((probabilities >= 0) & (probabilities <= 1)))
     
     def test_negative_log_likelihood(self):
